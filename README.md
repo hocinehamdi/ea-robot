@@ -18,6 +18,18 @@ This application is a foundational mobile interface for interacting with a human
 
 ---
 
+## Screenshots
+
+| Welcome Screen | Status Monitor |
+| :---: | :---: |
+| ![Welcome Screen](ea-robot-flutter/screenshots/welcome.png) | ![Status Monitor](ea-robot-flutter/screenshots/monitor.png) |
+
+| Idle State | Moving State |
+| :---: | :---: |
+| ![Idle State](ea-robot-flutter/screenshots/notMoving.png) | ![Moving State](ea-robot-flutter/screenshots/moving.png) |
+
+---
+
 ## How to Run
 
 ### 1. Mock Server

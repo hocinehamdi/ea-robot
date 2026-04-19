@@ -40,7 +40,7 @@ void main() {
 
     await tester.pump();
 
-    expect(find.text('STANDBY'), findsOneWidget);
+    expect(find.text('OFFLINE'), findsOneWidget);
     expect(find.text('CONNECT'), findsOneWidget);
   });
 }

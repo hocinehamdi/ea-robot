@@ -110,7 +110,8 @@ If this system were to be scaled and deployed to production, several enhancement
 - **Remote Config & Feature Flags**: Integrate **Firebase Remote Config** or **LaunchDarkly** to dynamically roll out feature updates, adjust UI themes, or modify logic (such as retry timeout durations) without requiring operators to go through the App Store to update.
 - **Push Notifications**: Use **Firebase Cloud Messaging (FCM)** to proactively alert operators via mobile push notifications if a robot's thermal state hits critical or its battery is dangerously low while the app is backgrounded.
 - **Internationalization (i18n)**: Support operators globally by modularizing string resources using the official `flutter_localizations` package or code-generation tools like **Slang**.
-- **Adaptive UI & Multi-Device Support**: Ensure the primary screens are fully responsive and adapt gracefully to larger devices like **tablets and foldables**. Implement a structured theming system with defined design tokens (colors, typography, spacing, etc.) that natively supports both **Light and Dark modes**.
+- **Adaptive UI & Multi-Device Support**: Ensure the primary screens are fully responsive and adapt gracefully to larger devices like **tablets and foldables**.
+- **Standardized Theming System**: Implement a structured system with defined design tokens (colors, typography, spacing, etc.) that natively supports both **Light and Dark modes**.
 
 ### Dedicated User Accessibility (a11y)
 - **VoiceOver / TalkBack Support**: Add robust Semantic labels (`Semantics` in Flutter) across all control interfaces so visually impaired operators can successfully command the robot relying entirely on device screen-readers.

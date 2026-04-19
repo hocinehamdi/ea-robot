@@ -28,7 +28,7 @@ class TelemetryCard extends StatelessWidget {
           Expanded(
             child: _buildCompactMetric(
               icon: Icons.battery_std,
-              label: 'POWER',
+              label: 'BATTERY',
               value: '${current?.battery.toStringAsFixed(0)}%',
               color: _getBatteryColor(current?.battery ?? 0),
             ),
@@ -36,8 +36,8 @@ class TelemetryCard extends StatelessWidget {
           _buildDivider(),
           Expanded(
             child: _buildCompactMetric(
-              icon: Icons.precision_manufacturing,
-              label: 'HUMANOID',
+              icon: Icons.person,
+              label: 'ROBOT',
               value: current?.thermalState.name.toUpperCase() ?? "--",
               color: _getThermalColor(current?.thermalState),
             ),
@@ -45,11 +45,10 @@ class TelemetryCard extends StatelessWidget {
           _buildDivider(),
           Expanded(
             child: _buildCompactMetric(
-              icon: Icons.developer_mode,
-              label: 'CONTROLLER',
+              icon: Icons.phone_android,
+              label: 'DEVICE',
               value: current?.deviceThermalState.name.toUpperCase() ?? "--",
               color: _getThermalColor(current?.deviceThermalState),
-              isNative: true,
             ),
           ),
         ],
@@ -71,24 +70,17 @@ class TelemetryCard extends StatelessWidget {
     required String label,
     required String value,
     required Color color,
-    bool isNative = false,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 14,
-          color: isNative ? Colors.blueAccent : Colors.white54,
-        ),
+        Icon(icon, size: 24, color: Colors.white54),
         const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            color: isNative
-                ? Colors.blueAccent.withOpacity(0.7)
-                : Colors.white38,
-            fontSize: 7,
+            color: Colors.white38,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.0,
           ),

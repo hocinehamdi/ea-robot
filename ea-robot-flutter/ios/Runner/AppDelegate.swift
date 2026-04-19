@@ -2,14 +2,16 @@ import Flutter
 import UIKit
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+@objc class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+    GeneratedPluginRegistrant.register(with: self)
+    
     let telemetryChannel = FlutterMethodChannel(name: "com.engineeredarts.robot/telemetry",
-                                              binaryMessenger: controller.binaryMessenger)
+                                              binaryMessenger: self.registrar(forPlugin: "ea_robot")!.messenger())
+    
     telemetryChannel.setMethodCallHandler({
       (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       if call.method == "getThermalState" {
@@ -20,10 +22,6 @@ import UIKit
     })
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-
-  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
-    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
   }
 
   private func getThermalState() -> String {

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:ea_robot/data/repositories/robot_repository_impl.dart';
 import 'package:ea_robot/domain/entities/robot.dart';
@@ -42,21 +45,94 @@ void main() {
       verify(() => mockDio.get('/status')).called(1);
     });
 
-    test('connect should call POST /connect', () async {
-      when(() => mockDio.post('/connect')).thenAnswer(
+    test('disconnect should call POST /disconnect', () async {
+      when(() => mockDio.post('/disconnect')).thenAnswer(
         (_) async => Response(
-          data: {'status': 'success'},
+          data: {},
           statusCode: 200,
-          requestOptions: RequestOptions(path: '/connect'),
+          requestOptions: RequestOptions(path: '/disconnect'),
         ),
       );
-
-      await repository.connect();
-
-      verify(() => mockDio.post('/connect')).called(1);
+      await repository.disconnect();
+      verify(() => mockDio.post('/disconnect')).called(1);
     });
 
-    group('Native MethodChannel', () {
+    test('move should call POST /move', () async {
+      when(() => mockDio.post('/move')).thenAnswer(
+        (_) async => Response(
+          data: {},
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/move'),
+        ),
+      );
+      await repository.move();
+      verify(() => mockDio.post('/move')).called(1);
+    });
+
+    test('stop should call POST /stop', () async {
+      when(() => mockDio.post('/stop')).thenAnswer(
+        (_) async => Response(
+          data: {},
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/stop'),
+        ),
+      );
+      await repository.stop();
+      verify(() => mockDio.post('/stop')).called(1);
+    });
+
+    group('SSE Telemetry Stream', () {
+      test('getTelemetry should yield robot updates from stream', () async {
+        final robotData = {
+          'id': 'r1',
+          'connected': true,
+          'battery': 85.0,
+          'thermalState': 'fair',
+          'moving': true,
+        };
+        final sseLine = 'data: ${jsonEncode(robotData)}\n';
+        final streamController = StreamController<Uint8List>();
+
+        when(() => mockDio.get(
+              '/telemetry',
+              options: any(named: 'options'),
+            )).thenAnswer((_) async => Response(
+              data: ResponseBody(
+                streamController.stream,
+                200,
+                headers: {
+                  'content-type': ['text/event-stream']
+                },
+              ),
+              statusCode: 200,
+              requestOptions: RequestOptions(path: '/telemetry'),
+            ));
+
+        final telemetryStream = repository.getTelemetry();
+        
+        // Push data to stream
+        streamController.add(Uint8List.fromList(utf8.encode(sseLine)));
+        
+        final robot = await telemetryStream.first;
+        expect(robot.battery, 85.0);
+        expect(robot.moving, isTrue);
+        
+        await streamController.close();
+      });
+    });
+
+    group('Native MethodChannel Mapping', () {
+      void setMockThermal(String value) {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(
+          const MethodChannel('com.engineeredarts.robot/telemetry'),
+          (MethodCall methodCall) async {
+            if (methodCall.method == 'getThermalState') return value;
+            return null;
+          },
+        );
+      }
+
       tearDown(() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
@@ -65,33 +141,19 @@ void main() {
         );
       });
 
-      test('getNativeThermalState should return ThermalState.serious', () async {
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(
-          const MethodChannel('com.engineeredarts.robot/telemetry'),
-          (MethodCall methodCall) async {
-            if (methodCall.method == 'getThermalState') {
-              return 'SERIOUS';
-            }
-            return null;
-          },
-        );
-
-        final result = await repository.getNativeThermalState();
-        expect(result, ThermalState.serious);
+      test('FAIR mapping', () async {
+        setMockThermal('FAIR');
+        expect(await repository.getNativeThermalState(), ThermalState.fair);
       });
 
-      test('getNativeThermalState should default to nominal on exception', () async {
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(
-          const MethodChannel('com.engineeredarts.robot/telemetry'),
-          (MethodCall methodCall) async {
-             throw PlatformException(code: 'UNAVAILABLE');
-          },
-        );
+      test('CRITICAL mapping', () async {
+        setMockThermal('CRITICAL');
+        expect(await repository.getNativeThermalState(), ThermalState.critical);
+      });
 
-        final result = await repository.getNativeThermalState();
-        expect(result, ThermalState.nominal);
+      test('Unknown string defaults to nominal', () async {
+        setMockThermal('MELTING');
+        expect(await repository.getNativeThermalState(), ThermalState.nominal);
       });
     });
   });

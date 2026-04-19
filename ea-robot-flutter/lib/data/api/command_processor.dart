@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'command_queue.dart';
 import '../../presentation/providers/robot_provider.dart';
+import '../../domain/repositories/robot_repository.dart';
 
 /// A service that handles deferred command execution.
 /// It is NOT a Notifier to avoid build-phase recursion.
@@ -15,7 +16,7 @@ class CommandProcessor {
     _init();
   }
 
-  Dio get _dio => ref.read(dioProvider);
+  RobotRepository get _repository => ref.read(robotRepositoryProvider);
 
   void _init() {
     // Listen to the queue provider directly to trigger processing
@@ -43,11 +44,22 @@ class CommandProcessor {
             .updateStatus(command.id, 'processing');
 
         print('[CommandProcessor] Sending ${command.label} command (ID: ${command.id}) to robot...');
-        await _dio.request(
-          command.path,
-          data: command.data,
-          options: Options(method: command.method),
-        );
+        if (command.path == '/move') {
+          await _repository.move();
+        } else if (command.path == '/stop') {
+          await _repository.stop();
+        } else if (command.path == '/connect') {
+          await _repository.connect();
+        } else if (command.path == '/disconnect') {
+          await _repository.disconnect();
+        } else {
+          // Fallback for custom commands if any
+          await ref.read(dioProvider).request(
+            command.path,
+            data: command.data,
+            options: Options(method: command.method),
+          );
+        }
 
         print('[CommandProcessor] ${command.label} command (ID: ${command.id}) completed successfully');
         // Success - remove from queue

@@ -51,9 +51,7 @@ class ResiliencyInterceptor extends Interceptor {
       try {
         final dio = retryDio ?? Dio(err.requestOptions.baseUrl != '' ? BaseOptions(baseUrl: err.requestOptions.baseUrl) : null);
         final response = await dio.fetch(err.requestOptions);
-        
-        // Success! Clear this path
-        readNotifier().reset(err.requestOptions.path);
+
         return handler.resolve(response);
       } catch (e) {
         print('[RESILIENCY] Retry exactly failed because: $e');

@@ -1,0 +1,33 @@
+name: ea_robot
+description: "EA Robot"
+version: 1.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^3.3.1
+  dio: ^5.9.2
+  connectivity_plus: ^7.1.1
+  riverpod_annotation: ^4.0.2
+  lottie: ^3.3.3
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.13.1
+  riverpod_generator: ^4.0.3
+  mocktail: ^1.0.5
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/animations/

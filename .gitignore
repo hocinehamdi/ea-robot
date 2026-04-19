@@ -1,0 +1,18 @@
+# OS Files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Sub-project specific folders (if not handled by sub-dir gitignores)
+node_modules/
+build/
+.dart_tool/
+
+# Environment secrets
+.env
+.env.*
+
+# Other
+AGENTS.md

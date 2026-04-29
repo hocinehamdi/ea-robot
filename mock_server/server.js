@@ -96,6 +96,7 @@ app.get('/telemetry', (req, res) => {
             timestamp: Date.now()
         });
 
+        res.write(': heartbeat\n\n');
         res.write(`data: ${data}\n\n`);
     }, 1000);
 

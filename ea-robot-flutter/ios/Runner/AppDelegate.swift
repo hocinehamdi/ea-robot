@@ -9,8 +9,9 @@ import UIKit
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
     
+    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     let telemetryChannel = FlutterMethodChannel(name: "com.engineeredarts.robot/telemetry",
-                                              binaryMessenger: self.registrar(forPlugin: "ea_robot")!.messenger())
+                                              binaryMessenger: controller.binaryMessenger)
     
     telemetryChannel.setMethodCallHandler({
       (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in

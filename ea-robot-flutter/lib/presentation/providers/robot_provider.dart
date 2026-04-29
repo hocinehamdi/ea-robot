@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/api/resiliency_interceptor.dart';
 import '../../presentation/providers/network_status_provider.dart';
 import '../../data/api/command_queue.dart';
 import '../../data/repositories/robot_repository_impl.dart';
-import '../../data/api/command_processor.dart';
+
 import '../../domain/entities/robot.dart';
 import '../../domain/repositories/robot_repository.dart';
 

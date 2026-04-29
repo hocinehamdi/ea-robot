@@ -47,7 +47,7 @@ final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$dioHash() => r'fa100101e3c9b9f43329ac6fd2b59e1c6d94c94a';
+String _$dioHash() => r'f126317aeb3151bb42619e504333f406e28158e4';
 
 @ProviderFor(robotRepository)
 final robotRepositoryProvider = RobotRepositoryProvider._();
@@ -89,7 +89,7 @@ final class RobotRepositoryProvider
   }
 }
 
-String _$robotRepositoryHash() => r'288c5193ba28da2bfa42ed50e05b1afbaa438225';
+String _$robotRepositoryHash() => r'0b38241ac670496f21b476544eed0112f6ab61c3';
 
 @ProviderFor(robotTelemetry)
 final robotTelemetryProvider = RobotTelemetryProvider._();
@@ -122,7 +122,7 @@ final class RobotTelemetryProvider
   }
 }
 
-String _$robotTelemetryHash() => r'72be761de6e5ad589029c4f8884d92b6aeeeb34e';
+String _$robotTelemetryHash() => r'cecb6594190c21b4eaa6c132f307732e14a5e268';
 
 @ProviderFor(RobotStatus)
 final robotStatusProvider = RobotStatusProvider._();
@@ -148,7 +148,7 @@ final class RobotStatusProvider
   RobotStatus create() => RobotStatus();
 }
 
-String _$robotStatusHash() => r'7bd0907e4ce74e89ccc9337f6086af4705930cdf';
+String _$robotStatusHash() => r'9337a24ca61bc274f9ca1ef46208ddef3fa844a7';
 
 abstract class _$RobotStatus extends $AsyncNotifier<Robot> {
   FutureOr<Robot> build();

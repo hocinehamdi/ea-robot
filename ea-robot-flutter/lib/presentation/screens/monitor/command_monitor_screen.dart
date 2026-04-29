@@ -9,24 +9,29 @@ class CommandMonitorScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queue = ref.watch(commandQueueProvider);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDarkMode ? Colors.white : Colors.black;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'COMMAND MONITOR',
-          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2),
+          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, color: baseColor),
         ),
+        iconTheme: IconThemeData(color: baseColor),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       extendBodyBehindAppBar: true,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)],
+            colors: isDarkMode 
+                ? [const Color(0xFF0F2027), const Color(0xFF203A43), const Color(0xFF2C5364)]
+                : [const Color(0xFFE0EAFC), const Color(0xFFCFDEF3), const Color(0xFFE0EAFC)],
           ),
         ),
         child: SafeArea(
@@ -35,16 +40,16 @@ class CommandMonitorScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(queue.length),
+                _buildHeader(queue.length, baseColor),
                 const SizedBox(height: 20),
                 Expanded(
                   child: queue.isEmpty
-                      ? _buildEmptyState()
+                      ? _buildEmptyState(baseColor)
                       : ListView.builder(
                           itemCount: queue.length,
                           itemBuilder: (context, index) {
                             final command = queue[index];
-                            return _buildCommandCard(command);
+                            return _buildCommandCard(command, baseColor);
                           },
                         ),
                 ),
@@ -56,17 +61,17 @@ class CommandMonitorScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(int count) {
+  Widget _buildHeader(int count, Color baseColor) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'PENDING OPERATIONS',
               style: TextStyle(
-                color: Colors.white38,
+                color: baseColor.withValues(alpha: 0.38),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
@@ -74,8 +79,8 @@ class CommandMonitorScreen extends ConsumerWidget {
             ),
             Text(
               '$count ACTIVE COMMANDS',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: baseColor,
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
               ),
@@ -103,7 +108,7 @@ class CommandMonitorScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(Color baseColor) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -111,36 +116,36 @@ class CommandMonitorScreen extends ConsumerWidget {
           Icon(
             Icons.auto_awesome,
             size: 64,
-            color: Colors.white.withValues(alpha: 0.1),
+            color: baseColor.withValues(alpha: 0.1),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'SYSTEM CALIBRATED',
             style: TextStyle(
-              color: Colors.white24,
+              color: baseColor.withValues(alpha: 0.24),
               fontWeight: FontWeight.bold,
               letterSpacing: 2,
             ),
           ),
-          const Text(
+          Text(
             'No pending resilient operations',
-            style: TextStyle(color: Colors.white10, fontSize: 12),
+            style: TextStyle(color: baseColor.withValues(alpha: 0.1), fontSize: 12),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCommandCard(QueuedCommand command) {
+  Widget _buildCommandCard(QueuedCommand command, Color baseColor) {
     final timeStr = DateFormat('HH:mm:ss').format(command.timestamp);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: baseColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: baseColor.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
@@ -155,16 +160,16 @@ class CommandMonitorScreen extends ConsumerWidget {
                   children: [
                     Text(
                       command.label,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: baseColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
                     Text(
                       timeStr,
-                      style: const TextStyle(
-                        color: Colors.white24,
+                      style: TextStyle(
+                        color: baseColor.withValues(alpha: 0.24),
                         fontSize: 10,
                       ),
                     ),
@@ -174,7 +179,7 @@ class CommandMonitorScreen extends ConsumerWidget {
                 Text(
                   '${command.method} ${command.path}',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.4),
+                    color: baseColor.withValues(alpha: 0.4),
                     fontSize: 10,
                     fontFamily: 'monospace',
                   ),

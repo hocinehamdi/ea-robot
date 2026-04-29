@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
-import '../../../providers/robot_provider.dart';
+
 import '../../../../domain/entities/robot.dart';
 
 class RobotIllustration extends ConsumerWidget {
@@ -75,7 +75,7 @@ class RobotIllustration extends ConsumerWidget {
                 errorBuilder: (context, error, stackTrace) => Icon(
                   Icons.android_rounded,
                   size: 100,
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withValues(alpha: 0.2),
                 ),
               ),
             ),

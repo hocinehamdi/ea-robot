@@ -25,7 +25,7 @@ class ControlPanel extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               elevation: 8,
-              shadowColor: Colors.blueAccent.withOpacity(0.5),
+              shadowColor: Colors.blueAccent.withValues(alpha: 0.5),
             ),
             child: const Text(
               'CONNECT',
@@ -33,34 +33,34 @@ class ControlPanel extends ConsumerWidget {
             ),
           )
         else
-          _buildDirectionalGrid(ref),
+          _buildDirectionalGrid(context, ref),
       ],
     );
   }
 
-  Widget _buildDirectionalGrid(WidgetRef ref) {
+  Widget _buildDirectionalGrid(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [_buildDirectionButton(ref, 'forward', Icons.arrow_upward)],
+          children: [_buildDirectionButton(context, ref, 'forward', Icons.arrow_upward)],
         ),
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildDirectionButton(ref, 'left', Icons.arrow_back),
+            _buildDirectionButton(context, ref, 'left', Icons.arrow_back),
             const SizedBox(width: 10),
-            _buildDirectionButton(ref, 'stop', Icons.stop, isStop: true),
+            _buildDirectionButton(context, ref, 'stop', Icons.stop, isStop: true),
             const SizedBox(width: 10),
-            _buildDirectionButton(ref, 'right', Icons.arrow_forward),
+            _buildDirectionButton(context, ref, 'right', Icons.arrow_forward),
           ],
         ),
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildDirectionButton(ref, 'backward', Icons.arrow_downward),
+            _buildDirectionButton(context, ref, 'backward', Icons.arrow_downward),
           ],
         ),
       ],
@@ -68,11 +68,14 @@ class ControlPanel extends ConsumerWidget {
   }
 
   Widget _buildDirectionButton(
+    BuildContext context,
     WidgetRef ref,
     String direction,
     IconData icon, {
     bool isStop = false,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return GestureDetector(
       onTap: () {
         if (isStop) {
@@ -86,17 +89,17 @@ class ControlPanel extends ConsumerWidget {
         height: 70,
         decoration: BoxDecoration(
           color: isStop
-              ? Colors.redAccent.withOpacity(0.1)
-              : Colors.white.withOpacity(0.05),
+              ? Colors.redAccent.withValues(alpha: 0.1)
+              : (isDarkMode ? Colors.white : Colors.black).withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isStop ? Colors.redAccent.withOpacity(0.5) : Colors.white24,
+            color: isStop ? Colors.redAccent.withValues(alpha: 0.5) : (isDarkMode ? Colors.white24 : Colors.black26),
             width: 1,
           ),
         ),
         child: Icon(
           icon,
-          color: isStop ? Colors.redAccent : Colors.white,
+          color: isStop ? Colors.redAccent : (isDarkMode ? Colors.white : Colors.black),
           size: 30,
         ),
       ),

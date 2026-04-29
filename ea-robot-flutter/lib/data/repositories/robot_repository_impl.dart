@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -56,36 +56,36 @@ class RobotRepositoryImpl implements RobotRepository {
     }
 
     // Native Platforms (Android/iOS) SSE Implementation
-    print('[Telemetry] Opening SSE connection...');
-    try {
-      final response = await _dio.get(
-        '/telemetry',
-        options: Options(responseType: ResponseType.stream),
-      );
+    while (true) {
+      debugPrint('[Telemetry] Opening SSE connection...');
+      try {
+        final response = await _dio.get(
+          '/telemetry',
+          options: Options(responseType: ResponseType.stream),
+        );
 
-      final stream = response.data.stream as Stream<Uint8List>;
-      final lineStream = stream
-          .cast<List<int>>()
-          .transform(utf8.decoder)
-          .transform(const LineSplitter());
+        final stream = response.data.stream as Stream<Uint8List>;
+        final lineStream = stream
+            .cast<List<int>>()
+            .transform(utf8.decoder)
+            .transform(const LineSplitter());
 
-      await for (final line in lineStream) {
-        if (line.startsWith('data: ')) {
-          final jsonData = line.substring(6);
-          final robot = RobotModel.fromJson(jsonDecode(jsonData));
-
-          final nativeThermal = await getNativeThermalState();
-
-          final updatedRobot = robot.copyWith(
-            deviceThermalState: nativeThermal,
-          );
-
-          yield updatedRobot;
+        await for (final line in lineStream.timeout(const Duration(seconds: 15))) {
+          if (line.isEmpty || line.startsWith(':')) continue; // Skip heartbeats/empty lines
+          
+          if (line.startsWith('data: ')) {
+            final jsonData = line.substring(6);
+            final robot = RobotModel.fromJson(jsonDecode(jsonData));
+            final nativeThermal = await getNativeThermalState();
+            yield robot.copyWith(deviceThermalState: nativeThermal);
+          }
         }
+      } catch (e) {
+        debugPrint('[Telemetry] SSE Stream Error: $e. Reconnecting in 2s...');
       }
-    } catch (e, stack) {
-      print('[Telemetry] SSE Stream Error: $e');
-      print(stack);
+      
+      // Wait before reconnecting
+      await Future.delayed(const Duration(seconds: 2));
     }
   }
 

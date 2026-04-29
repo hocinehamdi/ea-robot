@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -72,7 +73,7 @@ class CommandQueueNotifier extends Notifier<List<QueuedCommand>> {
         state = decoded.map((item) => QueuedCommand.fromJson(item)).toList();
       }
     } catch (e) {
-      print('[CommandQueue] Error loading queue: $e');
+      debugPrint('[CommandQueue] Error loading queue: $e');
     }
   }
 
@@ -84,7 +85,7 @@ class CommandQueueNotifier extends Notifier<List<QueuedCommand>> {
       );
       await prefs.setString(_storageKey, encoded);
     } catch (e) {
-      print('[CommandQueue] Error persisting queue: $e');
+      debugPrint('[CommandQueue] Error persisting queue: $e');
     }
   }
 

@@ -1,0 +1,9 @@
+{
+  "platforms": ["ios", "android"],
+  "ios": {
+    "modules": ["DeviceTelemetryModule"]
+  },
+  "android": {
+    "modules": ["com.earobot.devicetelemetry.DeviceTelemetryModule"]
+  }
+}

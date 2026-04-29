@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'command_queue.dart';
 import '../../presentation/providers/robot_provider.dart';
@@ -43,7 +44,7 @@ class CommandProcessor {
             .read(commandQueueProvider.notifier)
             .updateStatus(command.id, 'processing');
 
-        print('[CommandProcessor] Sending ${command.label} command (ID: ${command.id}) to robot...');
+        debugPrint('[CommandProcessor] Sending ${command.label} command (ID: ${command.id}) to robot...');
         if (command.path == '/move') {
           await _repository.move();
         } else if (command.path == '/stop') {
@@ -61,19 +62,40 @@ class CommandProcessor {
           );
         }
 
-        print('[CommandProcessor] ${command.label} command (ID: ${command.id}) completed successfully');
+        debugPrint('[CommandProcessor] ${command.label} command (ID: ${command.id}) completed successfully');
         // Success - remove from queue
         ref.read(commandQueueProvider.notifier).remove(command.id);
       } catch (e) {
-        print(
-          '[CommandProcessor] Persistent failure for ${command.id}. Sleeping 5s...',
+        debugPrint('[CommandProcessor] Error processing ${command.id}: $e');
+        
+        bool isNotConnectedError = false;
+        if (e is DioException && e.response?.statusCode == 400) {
+          final errorData = e.response?.data;
+          if (errorData is Map && errorData['error']?.toString().contains('not connected') == true) {
+            isNotConnectedError = true;
+          }
+        }
+
+        if (isNotConnectedError) {
+          debugPrint('[CommandProcessor] Robot reports DISCONNECTED. Attempting auto-connect...');
+          try {
+            await _repository.connect();
+            debugPrint('[CommandProcessor] Auto-connect successful. Retrying original command...');
+            continue; // Retry immediately
+          } catch (connectError) {
+            debugPrint('[CommandProcessor] Auto-connect failed: $connectError');
+          }
+        }
+
+        debugPrint(
+          '[CommandProcessor] Persistent failure for ${command.id}. Sleeping 2s...',
         );
         ref
             .read(commandQueueProvider.notifier)
             .updateStatus(command.id, 'failed');
 
         // Wait before next attempt at the head of the queue
-        await Future.delayed(const Duration(seconds: 5));
+        await Future.delayed(const Duration(seconds: 2));
         
         // Check if queue has changed (e.g. user cleared it) before looping
         if (ref.read(commandQueueProvider).isEmpty) break;

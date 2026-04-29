@@ -18,7 +18,7 @@ class RobotHomeScreen extends ConsumerWidget {
 
     final status = ref.watch(robotStatusProvider);
     final telemetry = ref.watch(robotTelemetryProvider);
-    final connected = status.value?.connected ?? false;
+    final connected = telemetry.value?.connected ?? status.value?.connected ?? false;
 
     ref.listen(networkStatusProvider, (previous, next) {
       if (next.status == NetworkStatus.retrying) {
@@ -41,19 +41,26 @@ class RobotHomeScreen extends ConsumerWidget {
       }
     });
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)],
+            colors: isDarkMode 
+                ? [const Color(0xFF0F2027), const Color(0xFF203A43), const Color(0xFF2C5364)]
+                : [const Color(0xFFE0EAFC), const Color(0xFFCFDEF3), const Color(0xFFE0EAFC)],
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
-              RobotHeader(status: status),
+              RobotHeader(
+                status: status,
+                telemetry: telemetry,
+              ),
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),

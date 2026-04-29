@@ -2,47 +2,67 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/robot_provider.dart';
 import '../../../providers/network_status_provider.dart';
+import '../../../providers/theme_provider.dart';
 import '../../../../domain/entities/robot.dart';
 import '../../../../data/api/command_queue.dart';
 import '../../monitor/command_monitor_screen.dart';
 
 class RobotHeader extends ConsumerWidget {
   final AsyncValue<Robot> status;
+  final AsyncValue<Robot> telemetry;
 
-  const RobotHeader({super.key, required this.status});
+  const RobotHeader({
+    super.key, 
+    required this.status,
+    required this.telemetry,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final connected = status.value?.connected ?? false;
+    final connected = telemetry.value?.connected ?? status.value?.connected ?? false;
     final networkState = ref.watch(networkStatusProvider);
     final queueLength = ref.watch(commandQueueProvider).length;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            icon: Badge(
-              label: Text(queueLength.toString()),
-              isLabelVisible: queueLength > 0,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white10),
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  color: isDarkMode ? Colors.white70 : Colors.black87,
                 ),
-                child: const Icon(
-                  Icons.hub_outlined,
-                  color: Colors.white70,
-                  size: 20,
+                onPressed: () {
+                  ref.read(themeModeProvider.notifier).toggle();
+                },
+              ),
+              IconButton(
+                icon: Badge(
+                  label: Text(queueLength.toString()),
+                  isLabelVisible: queueLength > 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: (isDarkMode ? Colors.white : Colors.black).withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: (isDarkMode ? Colors.white10 : Colors.black12)),
+                    ),
+                    child: Icon(
+                      Icons.hub_outlined,
+                      color: isDarkMode ? Colors.white70 : Colors.black87,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CommandMonitorScreen()),
                 ),
               ),
-            ),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const CommandMonitorScreen()),
-            ),
+            ],
           ),
           Row(
             children: [

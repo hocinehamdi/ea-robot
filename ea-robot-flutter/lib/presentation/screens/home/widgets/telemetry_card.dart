@@ -15,13 +15,15 @@ class TelemetryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final current = telemetry.value ?? status.value;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDarkMode ? Colors.white : Colors.black;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: baseColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: baseColor.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
@@ -31,24 +33,27 @@ class TelemetryCard extends StatelessWidget {
               label: 'BATTERY',
               value: '${current?.battery.toStringAsFixed(0)}%',
               color: _getBatteryColor(current?.battery ?? 0),
+              baseColor: baseColor,
             ),
           ),
-          _buildDivider(),
+          _buildDivider(isDarkMode),
           Expanded(
             child: _buildCompactMetric(
               icon: Icons.person,
               label: 'ROBOT',
               value: current?.thermalState.name.toUpperCase() ?? "--",
-              color: _getThermalColor(current?.thermalState),
+              color: _getThermalColor(current?.thermalState, isDarkMode),
+              baseColor: baseColor,
             ),
           ),
-          _buildDivider(),
+          _buildDivider(isDarkMode),
           Expanded(
             child: _buildCompactMetric(
               icon: Icons.phone_android,
               label: 'DEVICE',
               value: current?.deviceThermalState.name.toUpperCase() ?? "--",
-              color: _getThermalColor(current?.deviceThermalState),
+              color: _getThermalColor(current?.deviceThermalState, isDarkMode),
+              baseColor: baseColor,
             ),
           ),
         ],
@@ -56,12 +61,12 @@ class TelemetryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(bool isDarkMode) {
     return Container(
       height: 24,
       width: 1,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      color: Colors.white10,
+      color: isDarkMode ? Colors.white10 : Colors.black12,
     );
   }
 
@@ -70,16 +75,17 @@ class TelemetryCard extends StatelessWidget {
     required String label,
     required String value,
     required Color color,
+    required Color baseColor,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 24, color: Colors.white54),
+        Icon(icon, size: 24, color: baseColor.withValues(alpha: 0.54)),
         const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            color: Colors.white38,
+            color: baseColor.withValues(alpha: 0.38),
             fontSize: 12,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.0,
@@ -100,18 +106,18 @@ class TelemetryCard extends StatelessWidget {
     );
   }
 
-  Color _getThermalColor(ThermalState? state) {
+  Color _getThermalColor(ThermalState? state, bool isDarkMode) {
     switch (state) {
       case ThermalState.nominal:
-        return Colors.greenAccent;
+        return isDarkMode ? Colors.greenAccent : Colors.green;
       case ThermalState.fair:
-        return Colors.orangeAccent;
+        return isDarkMode ? Colors.orangeAccent : Colors.orange;
       case ThermalState.serious:
-        return Colors.redAccent;
+        return isDarkMode ? Colors.redAccent : Colors.red;
       case ThermalState.critical:
         return Colors.deepOrange;
       default:
-        return Colors.white;
+        return isDarkMode ? Colors.white : Colors.black;
     }
   }
 

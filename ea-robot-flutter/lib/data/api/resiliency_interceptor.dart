@@ -1,8 +1,7 @@
 import 'dart:math';
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import '../../presentation/providers/network_status_provider.dart';
-import './command_queue.dart';
 
 typedef ReadNetworkStatusNotifier = NetworkStatusNotifier Function();
 
@@ -16,7 +15,7 @@ class ResiliencyInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     // Log all robot actions clearly
-    print('[ACTION] Sending ${options.method} request to ${options.path}...');
+    debugPrint('[ACTION] Sending ${options.method} request to ${options.path}...');
 
     // Simulate intermittent connection lag
     if (_random.nextDouble() < 0.2) { // 20% chance of extra lag
@@ -42,7 +41,7 @@ class ResiliencyInterceptor extends Interceptor {
       err.requestOptions.extra['retries'] = retries;
       
       final delay = pow(2, retries) * 500; // Exponential backoff
-      print('[RESILIENCY] Retrying request (${retries}/3) in ${delay}ms: ${err.requestOptions.path}');
+      debugPrint('[RESILIENCY] Retrying request ($retries/3) in ${delay}ms: ${err.requestOptions.path}');
       
       readNotifier().setRetrying(err.requestOptions.path);
 
@@ -54,14 +53,14 @@ class ResiliencyInterceptor extends Interceptor {
 
         return handler.resolve(response);
       } catch (e) {
-        print('[RESILIENCY] Retry exactly failed because: $e');
+        debugPrint('[RESILIENCY] Retry exactly failed because: $e');
         if (e is DioException) {
           return onError(e, handler);
         }
         return handler.next(err);
       }
     } else if (retries >= 3) {
-      print('[RESILIENCY] Request failed permanently after 3 retries.');
+      debugPrint('[RESILIENCY] Request failed permanently after 3 retries.');
       readNotifier().setFailed(err.requestOptions.path);
     }
 
